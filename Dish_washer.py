@@ -1,8 +1,15 @@
 from Home import *
+from settings import *
+
+
 class Dish_washer:
     def __init__(self, home):
         self.dish_washer_sec = self.generate_device_consumption()
+        self.usage_hours = self.generate_usage_hours()
         self.home = home
+        self.isOn = False
+        self.last_usage = 0
+        self.current_consumption = 0
     def generate_device_consumption(self):
         dish_washer_sec = []
         dish_washer_min = \
@@ -17,8 +24,25 @@ class Dish_washer:
 
     def generate_usage_hours(self):
         usage_hours = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0]
-        if(self.home.nb_people == 2):
+        return usage_hours
+    def launch_device(self, time):
+        self.isOn = True
+        self.start_consuming(time)
+    def start_consuming(self, time):
+        if(self.isOn == True):
+            while(time + len(self.dish_washer_sec) != actual_time):
+                self.current_consumption = self.dish_washer_sec[actual_time - time]
+            self.last_usage = actual_time
+            isOn = False
+        else:
             pass
+
+
+
+
+
+
+
 
 
 
