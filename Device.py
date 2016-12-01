@@ -1,6 +1,7 @@
 from settings import *
 from random import *
 from time import *
+import matplotlib.pyplot as plt
 
 
 class DishWasher:
@@ -25,8 +26,16 @@ class DishWasher:
         return dish_washer_sec
 
     def generate_usage_hours(self):
-        usage_hours = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0]
+        usage_hours = [False, False, False, False, False, False, False, True, True, True, False, False, True, True,
+                       False, False, False, False, True, True, True, True, False, False]
         return usage_hours
+
+    def start_device(self):
+        self.isOn = True
+
+    def consume_energy(self, index):
+        return self.dish_washer_sec[index]
+
 
     def launch_device(self, start_time, actual_time):
         self.isOn = True
@@ -98,21 +107,90 @@ class Home:
         return self.total_consumption
 
 
+month_consumption = []
 actual_time = 0
 actual_time_hours = 0
 tmp = 0
+dishwasher_start_time = 0
 home = Home()
 print home.nb_people
 print home.nb_dish_washer
 print home.dish_washer.dish_washer_sec
 sleep(2)
+
+while actual_time < (2592001/4):
+    actual_time += 1
+    tmp += 1
+
+    if(home.nb_dish_washer != 0):
+        if tmp == 3600:
+            actual_time_hours += 1
+            tmp = 0
+            if actual_time_hours == 24:
+                actual_time_hours = 0
+        print home.dish_washer.isOn
+        # Check if dishwasher is on or off
+        if home.dish_washer.isOn is False:
+
+            # If device is on, check if time is an hour, and if device could be started
+            if actual_time % 3600 == 0 and home.dish_washer.usage_hours[actual_time_hours] is True:
+                ''' A REVOIR '''
+                actual_percentage_usage = ((actual_time - home.dish_washer.last_usage)*100)/(432000/home.nb_people)
+                ''' / A REVOIR'''
+                rdm = randrange(1, 100)
+                print (rdm, actual_percentage_usage)
+
+                #Generation of a random number if it is less than the %age of chance of using it,
+                # the device could be launched
+                if rdm < actual_percentage_usage:
+                    print "Launching device DishWasher"
+                    dishwasher_start_time = actual_time
+                    home.dish_washer.start_device()
+                    print home.dish_washer.isOn
+                    # has to be modified later, but for now on home consumption = dishwasher consumption
+                    home.total_consumption = home.dish_washer.consume_energy(actual_time-dishwasher_start_time)
+                    print actual_time
+                    print actual_time_hours
+                    print home.total_consumption
+                else:
+                    print actual_time
+                    print actual_time_hours
+
+                    print home.total_consumption, " Watts"
+            else:
+                print actual_time
+                print actual_time_hours
+
+                print home.total_consumption, " Watts"
+
+        # If device is already on
+        else:
+
+            # Check if it is not the last consuming of the dishwasher
+            if len(home.dish_washer.dish_washer_sec) > actual_time - dishwasher_start_time:
+                home.total_consumption = home.dish_washer.consume_energy(actual_time-dishwasher_start_time)
+                print "consuming energy"
+                print actual_time
+                print actual_time_hours
+                print home.total_consumption
+            else:
+                home.dish_washer.isOn = False
+                home.dish_washer.last_usage = actual_time
+
+        month_consumption.append(home.total_consumption)
+    else:
+        pass
+plt.plot(month_consumption)
+plt.show()
+
+
+
+'''
+UNUSED CODE
+
 for actual_time in range(1, 2592001): # 1 mois = 2592000 secs
     tmp += 1
-    if(tmp == 3600):
-        actual_time_hours += 1
-        tmp = 0
-    if(actual_time_hours == 24):
-        actual_time_hours = 0
+
 
     #check if device could be turned on every hour
     if (actual_time % 3600 == 0):
@@ -135,7 +213,7 @@ for actual_time in range(1, 2592001): # 1 mois = 2592000 secs
     print actual_time_hours
 
     print home.total_consumption, " Watts"
-
+'''
 
 
 
